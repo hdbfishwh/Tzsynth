@@ -1,1048 +1,992 @@
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/hdbfishwh/Tzsynth/refs/heads/main/Theme.lua"))()
-
--- Services
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
-local Camera = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-local Stats = game:GetService("Stats")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
--- Dapatkan username pemain
-local playerName = LocalPlayer.Name
-local displayName = LocalPlayer.DisplayName
-
-WindUI:Localization({
-    Enabled = true,
-    Prefix = "loc:",
-    DefaultLanguage = "en",
-    Translations = {
-        ["en"] = {
-            ["WINDUI_EXAMPLE"] = "ZAINS",
-            ["WELCOME"] = "2 player development",
-            ["LIB_DESC"] = "Hello " .. displayName .. ", thank you for using our script :)",
-            ["SETTINGS"] = "Settings",
-            ["APPEARANCE"] = "Appearance",
-            ["FEATURES"] = "Features",
-            ["UTILITIES"] = "Utilities",
-            ["UI_ELEMENTS"] = "UI Elements",
-            ["CONFIGURATION"] = "Configuration",
-            ["SAVE_CONFIG"] = "Save Configuration",
-            ["LOAD_CONFIG"] = "Load Configuration",
-            ["THEME_SELECT"] = "Select Theme",
-            ["TRANSPARENCY"] = "Window Transparency",
-            ["AUTO_FARM"] = "Auto Farm",
-            ["ENABLE_AUTO_FARM"] = "Enable Auto Farm",
-            ["AUTO_FARM_DESC"] = "Automatically farm cash registers and safes",
-            ["STATS"] = "Statistics",
-            ["EARNINGS"] = "Earnings",
-            ["TIME_RUNNING"] = "Time Running"
-        }
-    }
-})
-
-WindUI.TransparencyValue = 0.10
-WindUI:SetTheme("Dark")
-
--- Auto Farm UI Variables
-local AutoFarmUI = Instance.new("ScreenGui")
-AutoFarmUI.Name = "AutoFarmStatsUI"
-AutoFarmUI.Parent = CoreGui
-AutoFarmUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-AutoFarmUI.Enabled = false
-
-local StatsFrame = Instance.new("Frame")
-StatsFrame.Parent = AutoFarmUI
-StatsFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-StatsFrame.BackgroundTransparency = 0.3
-StatsFrame.Position = UDim2.new(0.02, 0, 0.02, 0)
-StatsFrame.Size = UDim2.new(0, 200, 0, 120)
-StatsFrame.AnchorPoint = Vector2.new(0, 0)
-
+local LunarUi = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 8)
-UICorner.Parent = StatsFrame
+local stroke = Instance.new("UIStroke")
+local ImageLabel = Instance.new("ImageLabel")
+local MainText = Instance.new("TextLabel")
+local TextLabel = Instance.new("TextLabel")
+local Overlay = Instance.new("Frame") 
 
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(60, 60, 60)
-UIStroke.Parent = StatsFrame
+LunarUi.Name = "LunarUi"
+LunarUi.IgnoreGuiInset = true
+LunarUi.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+LunarUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local Title = Instance.new("TextLabel")
-Title.Parent = StatsFrame
-Title.Text = "Auto Farm Stats"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 14
-Title.Size = UDim2.new(1, -10, 0, 25)
-Title.Position = UDim2.new(0, 5, 0, 5)
-Title.BackgroundTransparency = 1
-Title.TextXAlignment = Enum.TextXAlignment.Left
+Overlay.Name = "GlassOverlay"
+Overlay.Parent = LunarUi
+Overlay.Size = UDim2.new(1, 0, 1, 0)
+Overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+Overlay.BackgroundTransparency = 1
+Overlay.ZIndex = 0
 
-local CloseButton = Instance.new("TextButton")
-CloseButton.Parent = StatsFrame
-CloseButton.Text = "X"
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.TextSize = 14
-CloseButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-CloseButton.BackgroundTransparency = 1
-CloseButton.Size = UDim2.new(0, 20, 0, 20)
-CloseButton.Position = UDim2.new(0.95, -20, 0, 5)
+TweenService:Create(Overlay, TweenInfo.new(0.6, Enum.EasingStyle.Sine), {
+	BackgroundTransparency = 0.2
+}):Play()
 
-local StatsContainer = Instance.new("Frame")
-StatsContainer.Parent = StatsFrame
-StatsContainer.BackgroundTransparency = 1
-StatsContainer.Position = UDim2.new(0, 5, 0, 30)
-StatsContainer.Size = UDim2.new(1, -10, 1, -35)
+Frame.Parent = LunarUi
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BackgroundTransparency = 0.100
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(0.5, 0, 1.5, 0)
+Frame.Size = UDim2.new(0, 326, 0, 193)
 
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = StatsContainer
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 3)
+UICorner.Parent = Frame
 
-local function createStatLabel(text, parent)
-    local Label = Instance.new("TextLabel")
-    Label.Parent = parent
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Font = Enum.Font.Gotham
-    Label.TextSize = 12
-    Label.Size = UDim2.new(1, 0, 0, 18)
-    Label.BackgroundTransparency = 1
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    return Label
-end
+ImageLabel.Parent = Frame
+ImageLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ImageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ImageLabel.BorderSizePixel = 0
+ImageLabel.Position = UDim2.new(0.354749441, 0, 0.164281815, 0)
+ImageLabel.Size = UDim2.new(0, 95, 0, 76)
+ImageLabel.Image = "rbxassetid://81628958072398"
 
-local PingLabel = createStatLabel("Ping: Calculating...", StatsContainer)
-local CashLabel = createStatLabel("Earnings: $0", StatsContainer)
-local FPSLabel = createStatLabel("FPS: Calculating...", StatsContainer)
-local TimerLabel = createStatLabel("Time: 00:00:00", StatsContainer)
+stroke.Name = "UIStroke"
+stroke.Parent = Frame
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.Color = Color3.fromRGB(0, 170, 255)
+stroke.LineJoinMode = Enum.LineJoinMode.Round
+stroke.Thickness = 2
+stroke.Transparency = 0
 
--- Dragging functionality
-local dragging, dragStart, startPos
-local currentTween
+MainText.Name = "MainText"
+MainText.Parent = Frame
+MainText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MainText.BackgroundTransparency = 1.000
+MainText.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MainText.BorderSizePixel = 0
+MainText.Position = UDim2.new(0.0730055347, 0, 0.729062259, 0)
+MainText.Size = UDim2.new(0.854823947, 0, -0.122750714, 40)
+MainText.Font = Enum.Font.Arial
+MainText.Text = "Loading Car Driving Indonesia Script...."
+MainText.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainText.TextScaled = true
+MainText.TextSize = 14.000
+MainText.TextWrapped = true
 
-local function updateDrag(input)
-    local delta = input.Position - dragStart
-    local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    if currentTween then currentTween:Cancel() end
-    currentTween = TweenService:Create(StatsFrame, TweenInfo.new(0.1), {Position = targetPos})
-    currentTween:Play()
-end
+TextLabel.Parent = Frame
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 1.000
+TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TextLabel.BorderSizePixel = 0
+TextLabel.Position = UDim2.new(0.0699380487, 0, 0.844559431, 0)
+TextLabel.Size = UDim2.new(0.854823947, 0, -0.130853057, 40)
+TextLabel.Font = Enum.Font.Arial
+TextLabel.Text = "(discord.gg/DShBJfBvDS)"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextScaled = true
+TextLabel.TextSize = 14.000
+TextLabel.TextWrapped = true
 
-StatsFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = StatsFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
 
-StatsFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-        updateDrag(input)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        updateDrag(input)
-    end
-end)
-
-CloseButton.MouseButton1Click:Connect(function()
-    AutoFarmUI.Enabled = false
-end)
-
--- Update stats functions
-spawn(function()
-    while task.wait(0.5) do
-        if AutoFarmUI.Enabled then
-            local fps = math.floor(1 / RunService.RenderStepped:Wait())
-            FPSLabel.Text = "FPS: " .. tostring(fps)
-        end
-    end
-end)
-
-spawn(function()
-    while task.wait(0.1) do
-        if AutoFarmUI.Enabled then
-            local perfStats = Stats and Stats:FindFirstChild("PerformanceStats")
-            if perfStats and perfStats:FindFirstChild("Ping") then
-                PingLabel.Text = "Ping: " .. tostring(math.floor(perfStats.Ping:GetValue())) .. "ms"
-            end
-        end
-    end
-end)
-
-local function gradient(text, startColor, endColor)
-    local result = ""
-    for i = 1, #text do
-        local t = (i - 1) / (#text - 1)
-        local r = math.floor((startColor.R + (endColor.R - startColor.R) * t) * 255)
-        local g = math.floor((startColor.G + (endColor.G - startColor.G) * t) * 255)
-        local b = math.floor((startColor.B + (endColor.B - startColor.B) * t) * 255)
-        result = result .. string.format('<font color="rgb(%d,%d,%d)">%s</font>', r, g, b, text:sub(i, i))
-    end
-    return result
-end
-
-WindUI:Popup({
-    Title = gradient("WindUI Demo", Color3.fromHex("#6A11CB"), Color3.fromHex("#2575FC")),
-    Icon = "sparkles",
-    Content = "loc:LIB_DESC",
-    Buttons = {
-        {
-            Title = "Get Started",
-            Icon = "arrow-right",
-            Variant = "Primary",
-            Callback = function() end
-        }
-    }
+local tweenIn = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	Position = UDim2.new(0.5, 0, 0.5, 0)
 })
 
--- Configuration
-local Config = {
-    ESP = {
-        Enabled = false,
-        BoxColor = Color3.new(1, 0.3, 0),
-        DistanceColor = Color3.new(1, 1, 1),
-        HealthGradient = {
-            Color3.new(0, 1, 0),
-            Color3.new(1, 1, 0),
-            Color3.new(1, 0, 0)
-        },
-        SnaplineEnabled = true,
-        SnaplinePosition = "Center",
-        RainbowEnabled = false
-    },
-    Aimbot = {
-        Enabled = false,
-        FOV = 30,
-        MaxDistance = 200,
-        ShowFOV = false,
-        TargetPart = "Head"
-    },
-    AutoFarm = {
-        Enabled = false,
-        TargetCashRegisters = true,
-        TargetSafes = true,
-        ShowStats = true
-    }
-}
+local tweenOut = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+	Position = UDim2.new(0.5, 0, -0.5, 0)
+})
 
--- Variables
-local RainbowSpeed = 0.5
-local ESPDrawings = {}
+tweenIn:Play()
+tweenIn.Completed:Wait()
 
--- Auto Farm Variables
-local AutoFarmRunning = false
-local AutoFarmStats = {
-    Earnings = 0,
-    StartTime = 0,
-    InitialCash = 0,
-    Seconds = 0,
-    Minutes = 0,
-    Hours = 0
-}
+task.wait(4)
 
--- Functions
-local function CreateESP(player)
-    if player == LocalPlayer then return end
-    
-    local drawings = {
-        Box = Drawing.new("Square"),
-        HealthBar = Drawing.new("Square"),
-        Distance = Drawing.new("Text"),
-        Snapline = Drawing.new("Line")
-    }
-    
-    for _, drawing in pairs(drawings) do
-        drawing.Visible = false
-        if drawing.Type == "Square" then
-            drawing.Thickness = 2
-            drawing.Filled = false
-        end
-    end
-    
-    drawings.Box.Color = Config.ESP.BoxColor
-    drawings.HealthBar.Filled = true
-    drawings.Distance.Size = 16
-    drawings.Distance.Center = true
-    drawings.Distance.Color = Config.ESP.DistanceColor
-    drawings.Snapline.Color = Config.ESP.BoxColor
-    
-    ESPDrawings[player] = drawings
+tweenOut:Play()
+
+TweenService:Create(Overlay, TweenInfo.new(0.6, Enum.EasingStyle.Sine), {
+	BackgroundTransparency = 1
+}):Play()
+
+tweenOut.Completed:Wait()
+task.wait(0.2)
+
+LunarUi:Destroy()
+
+-- Instances:
+local UIS = game:GetService("UserInputService")
+local dragging, dragInput, dragStart, startPos
+
+local MainUi = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local LunarLogos = Instance.new("ImageLabel")
+local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+local Money = Instance.new("TextLabel")
+local UIAspectRatioConstraint_2 = Instance.new("UIAspectRatioConstraint")
+local Time = Instance.new("TextLabel")
+local UIAspectRatioConstraint_3 = Instance.new("UIAspectRatioConstraint")
+local Last = Instance.new("TextLabel")
+local UIAspectRatioConstraint_4 = Instance.new("UIAspectRatioConstraint")
+local Total = Instance.new("TextLabel")
+local UIAspectRatioConstraint_5 = Instance.new("UIAspectRatioConstraint")
+local MoneyLogos = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_6 = Instance.new("UIAspectRatioConstraint")
+local StopwatchLogos = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_7 = Instance.new("UIAspectRatioConstraint")
+local LastLogos = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_8 = Instance.new("UIAspectRatioConstraint")
+local BankLogos = Instance.new("ImageLabel")
+local UIAspectRatioConstraint_9 = Instance.new("UIAspectRatioConstraint")
+local MoneyChangable = Instance.new("TextLabel")
+local UIAspectRatioConstraint_10 = Instance.new("UIAspectRatioConstraint")
+local TimeChangable = Instance.new("TextLabel")
+local UIAspectRatioConstraint_11 = Instance.new("UIAspectRatioConstraint")
+local LastChangable = Instance.new("TextLabel")
+local UIAspectRatioConstraint_12 = Instance.new("UIAspectRatioConstraint")
+local TotalEarnChangable = Instance.new("TextLabel")
+local UIAspectRatioConstraint_13 = Instance.new("UIAspectRatioConstraint")
+local Maintenance = Instance.new("TextLabel")
+local UIAspectRatioConstraint_14 = Instance.new("UIAspectRatioConstraint")
+local UIAspectRatioConstraint_15 = Instance.new("UIAspectRatioConstraint")
+
+--Properties:
+
+MainUi.Name = "MainUi"
+MainUi.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+MainUi.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Main.Name = "Main"
+Main.Parent = MainUi
+Main.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Main.BorderSizePixel = 0
+Main.Position = UDim2.new(0, 261, 0, 162)
+Main.Size = UDim2.new(0, 479, 0, 279)
+
+UICorner.Parent = Main
+
+LunarLogos.Name = "Lunar Logos"
+LunarLogos.Parent = Main
+LunarLogos.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LunarLogos.BorderColor3 = Color3.fromRGB(0, 0, 0)
+LunarLogos.BorderSizePixel = 0
+LunarLogos.Position = UDim2.new(0.0340966173, 0, 0, 0)
+LunarLogos.Size = UDim2.new(0, 91, 0, 72)
+LunarLogos.Image = "rbxassetid://8922788417"
+
+UIAspectRatioConstraint.Parent = LunarLogos
+UIAspectRatioConstraint.AspectRatio = 1.264
+
+Money.Name = "Money"
+Money.Parent = Main
+Money.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Money.BackgroundTransparency = 2.000
+Money.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Money.BorderSizePixel = 0
+Money.Position = UDim2.new(0.116840616, 0, 0.349860966, 0)
+Money.Size = UDim2.new(0, 76, 0, 32)
+Money.Font = Enum.Font.Unknown
+Money.Text = "Money"
+Money.TextColor3 = Color3.fromRGB(255, 255, 255)
+Money.TextSize = 16.000
+Money.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_2.Parent = Money
+UIAspectRatioConstraint_2.AspectRatio = 2.375
+
+Time.Name = "Time"
+Time.Parent = Main
+Time.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Time.BackgroundTransparency = 2.000
+Time.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Time.BorderSizePixel = 0
+Time.Position = UDim2.new(0.169959515, 0, 0.498494476, 0)
+Time.Size = UDim2.new(0, 74, 0, 39)
+Time.Font = Enum.Font.Unknown
+Time.Text = "Farming Time"
+Time.TextColor3 = Color3.fromRGB(255, 255, 255)
+Time.TextSize = 16.000
+Time.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_3.Parent = Time
+UIAspectRatioConstraint_3.AspectRatio = 1.897
+
+Last.Name = "Last"
+Last.Parent = Main
+Last.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Last.BackgroundTransparency = 2.000
+Last.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Last.BorderSizePixel = 0
+Last.Position = UDim2.new(0.136147186, 0, 0.648945808, 0)
+Last.Size = UDim2.new(0, 100, 0, 36)
+Last.Font = Enum.Font.Unknown
+Last.Text = "Last Earning"
+Last.TextColor3 = Color3.fromRGB(255, 255, 255)
+Last.TextSize = 16.000
+Last.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_4.Parent = Last
+UIAspectRatioConstraint_4.AspectRatio = 2.778
+
+Total.Name = "Total"
+Total.Parent = Main
+Total.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Total.BackgroundTransparency = 2.000
+Total.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Total.BorderSizePixel = 0
+Total.Position = UDim2.new(0.155940056, 0, 0.787522852, 0)
+Total.Size = UDim2.new(0, 90, 0, 50)
+Total.Font = Enum.Font.Unknown
+Total.Text = "Total Earning"
+Total.TextColor3 = Color3.fromRGB(255, 255, 255)
+Total.TextSize = 16.000
+Total.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_5.Parent = Total
+UIAspectRatioConstraint_5.AspectRatio = 1.800
+
+MoneyLogos.Name = "MoneyLogos"
+MoneyLogos.Parent = Main
+MoneyLogos.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MoneyLogos.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MoneyLogos.BorderSizePixel = 0
+MoneyLogos.Position = UDim2.new(0.0337662324, 0, 0.340245605, 0)
+MoneyLogos.Size = UDim2.new(0, 31, 0, 35)
+MoneyLogos.Image = "rbxassetid://119551410175894"
+
+UIAspectRatioConstraint_6.Parent = MoneyLogos
+UIAspectRatioConstraint_6.AspectRatio = 0.886
+
+StopwatchLogos.Name = "StopwatchLogos"
+StopwatchLogos.Parent = Main
+StopwatchLogos.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+StopwatchLogos.BorderColor3 = Color3.fromRGB(0, 0, 0)
+StopwatchLogos.BorderSizePixel = 0
+StopwatchLogos.Position = UDim2.new(0.0311688315, 0, 0.527745605, 0)
+StopwatchLogos.Size = UDim2.new(0, 31, 0, 30)
+StopwatchLogos.Image = "rbxassetid://15034073441"
+
+UIAspectRatioConstraint_7.Parent = StopwatchLogos
+UIAspectRatioConstraint_7.AspectRatio = 1.033
+
+LastLogos.Name = "LastLogos"
+LastLogos.Parent = Main
+LastLogos.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LastLogos.BorderColor3 = Color3.fromRGB(0, 0, 0)
+LastLogos.BorderSizePixel = 0
+LastLogos.Position = UDim2.new(0.038961038, 0, 0.663885415, 0)
+LastLogos.Size = UDim2.new(0, 31, 0, 30)
+LastLogos.Image = "rbxassetid://11253545248"
+
+UIAspectRatioConstraint_8.Parent = LastLogos
+UIAspectRatioConstraint_8.AspectRatio = 1.033
+
+BankLogos.Name = "BankLogos"
+BankLogos.Parent = Main
+BankLogos.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BankLogos.BorderColor3 = Color3.fromRGB(0, 0, 0)
+BankLogos.BorderSizePixel = 0
+BankLogos.Position = UDim2.new(0.038961038, 0, 0.825659513, 0)
+BankLogos.Size = UDim2.new(0, 31, 0, 30)
+BankLogos.Image = "rbxassetid://12773863425"
+
+UIAspectRatioConstraint_9.Parent = BankLogos
+UIAspectRatioConstraint_9.AspectRatio = 1.033
+
+MoneyChangable.Name = "MoneyChangable"
+MoneyChangable.Parent = Main
+MoneyChangable.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+MoneyChangable.BackgroundTransparency = 2.000
+MoneyChangable.BorderColor3 = Color3.fromRGB(0, 0, 0)
+MoneyChangable.BorderSizePixel = 0
+MoneyChangable.Position = UDim2.new(0.555109024, 0, 0.349860936, 0)
+MoneyChangable.Size = UDim2.new(0, 83, 0, 32)
+MoneyChangable.Font = Enum.Font.Unknown
+MoneyChangable.Text = "Rp 0"
+MoneyChangable.TextColor3 = Color3.fromRGB(255, 255, 255)
+MoneyChangable.TextSize = 16.000
+MoneyChangable.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_10.Parent = MoneyChangable
+UIAspectRatioConstraint_10.AspectRatio = 2.594
+
+TimeChangable.Name = "TimeChangable"
+TimeChangable.Parent = Main
+TimeChangable.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TimeChangable.BackgroundTransparency = 2.000
+TimeChangable.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TimeChangable.BorderSizePixel = 0
+TimeChangable.Position = UDim2.new(0.555109024, 0, 0.501952171, 0)
+TimeChangable.Size = UDim2.new(0, 83, 0, 32)
+TimeChangable.Font = Enum.Font.Unknown
+TimeChangable.Text = "0 Sec"
+TimeChangable.TextColor3 = Color3.fromRGB(255, 255, 255)
+TimeChangable.TextSize = 16.000
+TimeChangable.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_11.Parent = TimeChangable
+UIAspectRatioConstraint_11.AspectRatio = 2.594
+
+LastChangable.Name = "LastChangable"
+LastChangable.Parent = Main
+LastChangable.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+LastChangable.BackgroundTransparency = 2.000
+LastChangable.BorderColor3 = Color3.fromRGB(0, 0, 0)
+LastChangable.BorderSizePixel = 0
+LastChangable.Position = UDim2.new(0.555109024, 0, 0.657845736, 0)
+LastChangable.Size = UDim2.new(0, 83, 0, 32)
+LastChangable.Font = Enum.Font.Unknown
+LastChangable.Text = "Rp 0"
+LastChangable.TextColor3 = Color3.fromRGB(255, 255, 255)
+LastChangable.TextSize = 16.000
+LastChangable.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_12.Parent = LastChangable
+UIAspectRatioConstraint_12.AspectRatio = 2.594
+
+TotalEarnChangable.Name = "TotalEarnChangable"
+TotalEarnChangable.Parent = Main
+TotalEarnChangable.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TotalEarnChangable.BackgroundTransparency = 2.000
+TotalEarnChangable.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TotalEarnChangable.BorderSizePixel = 0
+TotalEarnChangable.Position = UDim2.new(0.555109024, 0, 0.821343839, 0)
+TotalEarnChangable.Size = UDim2.new(0, 83, 0, 32)
+TotalEarnChangable.Font = Enum.Font.Unknown
+TotalEarnChangable.Text = "Rp 0"
+TotalEarnChangable.TextColor3 = Color3.fromRGB(255, 255, 255)
+TotalEarnChangable.TextSize = 16.000
+TotalEarnChangable.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_13.Parent = TotalEarnChangable
+UIAspectRatioConstraint_13.AspectRatio = 2.594
+
+Maintenance.Name = "Maintenance"
+Maintenance.Parent = Main
+Maintenance.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Maintenance.BackgroundTransparency = 2.000
+Maintenance.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Maintenance.BorderSizePixel = 0
+Maintenance.Position = UDim2.new(0.352674127, 0, 0.0386606641, 0)
+Maintenance.Size = UDim2.new(0, 134, 0, 50)
+Maintenance.Font = Enum.Font.Unknown
+Maintenance.Text = "Welcome User"
+Maintenance.TextColor3 = Color3.fromRGB(255, 255, 255)
+Maintenance.TextSize = 16.000
+Maintenance.TextStrokeTransparency = 0.000
+
+UIAspectRatioConstraint_14.Parent = Maintenance
+UIAspectRatioConstraint_14.AspectRatio = 2.680
+
+UIAspectRatioConstraint_15.Parent = Main
+UIAspectRatioConstraint_15.AspectRatio = 1.717
+
+Main.Active = true
+Main.Draggable = false -- kita pakai custom drag
+Main.Selectable = true
+
+Main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Main.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		Main.Position = UDim2.new(
+			startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- [ global variables ] -- 
+local TweenService = game:GetService("TweenService")
+
+local Player = game.Players.LocalPlayer
+local CarName = Player.Name .. "sCar"
+
+-- [ function ] --
+function ToggleGlassOverlay()
+	
+	local overlay = Instance.new("ScreenGui")
+	overlay.Name = "GlassOverlay"
+	overlay.IgnoreGuiInset = true
+	overlay.ResetOnSpawn = false
+	overlay.DisplayOrder = 1
+	overlay.Parent = CoreGui
+
+	local bg = Instance.new("Frame", overlay)
+	bg.Size = UDim2.new(1, 0, 1, 0)
+	bg.Position = UDim2.new(0, 0, 0, 0)
+	bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	bg.BackgroundTransparency = 1
+	bg.BorderSizePixel = 0
+
+	local TextContainer = Instance.new("Frame", overlay)
+	TextContainer.Size = UDim2.new(1, 0, 1, 0)
+	TextContainer.BackgroundTransparency = 1
+
+	local CombinedText = Instance.new("TextLabel", TextContainer)
+	CombinedText.Size = UDim2.new(0, 800, 0, 50)
+	CombinedText.Position = UDim2.new(0.5, 0, 0.5, -25)
+	CombinedText.AnchorPoint = Vector2.new(0.5, 0.5)
+	CombinedText.BackgroundTransparency = 1
+	CombinedText.Font = Enum.Font.Ubuntu
+	CombinedText.TextSize = 26
+	CombinedText.TextColor3 = Color3.fromRGB(255, 255, 255)
+	CombinedText.TextStrokeTransparency = 0.6
+	CombinedText.TextWrapped = true
+	CombinedText.TextScaled = true
+	CombinedText.RichText = true
+	CombinedText.Text = ""
+	CombinedText.TextTransparency = 0
+
+	local SubText = Instance.new("TextLabel", TextContainer)
+	SubText.AnchorPoint = Vector2.new(0.5, 0.5)
+	SubText.Position = UDim2.new(0.5, 0, 0.5, 30)
+	SubText.Size = UDim2.new(0, 400, 0, 30)
+	SubText.BackgroundTransparency = 1
+	SubText.Text = "discord.gg/DShBJfBvDS"
+	SubText.Font = Enum.Font.Ubuntu
+	SubText.TextSize = 20
+	SubText.TextColor3 = Color3.fromRGB(104, 168, 255)
+	SubText.TextStrokeTransparency = 0.7
+	SubText.TextWrapped = true
+	SubText.TextScaled = true
+	SubText.TextTransparency = 1
+
+	TweenService:Create(bg, TweenInfo.new(0.5), {BackgroundTransparency = 0.2}):Play()
+	TweenService:Create(SubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+	task.spawn(function()
+		local prefix = "Auto Farming"
+		local suffix = " actived, dont close or do anyting"
+		local fullText = prefix .. suffix
+
+		local delayPerChar = 0.03
+		for i = 1, #fullText do
+			local typed = fullText:sub(1, i)
+			if typed:sub(1, #prefix) == prefix then
+				CombinedText.Text = "<font color='rgb(104,168,255)'>" ..
+					typed:sub(1, #prefix) ..
+					"</font>" .. typed:sub(#prefix + 1)
+			else
+				CombinedText.Text = typed
+			end
+			game:GetService("RunService").RenderStepped:Wait()
+			task.wait(delayPerChar)
+		end
+	end)
 end
 
-local function UpdateESP(player, drawings)
-    if not Config.ESP.Enabled or not player.Character then
-        for _, drawing in pairs(drawings) do
-            drawing.Visible = false
-        end
-        return
-    end
-    
-    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-    local head = player.Character:FindFirstChild("Head")
-    
-    if not humanoid or humanoid.Health <= 0 or not head then
-        for _, drawing in pairs(drawings) do
-            drawing.Visible = false
-        end
-        return
-    end
-    
-    local headPos, onScreen = Camera:WorldToViewportPoint(head.Position)
-    if not onScreen then
-        for _, drawing in pairs(drawings) do
-            drawing.Visible = false
-        end
-        return
-    end
-    
-    local distance = (head.Position - Camera.CFrame.Position).Magnitude
-    local scale = 1000 / distance
-    
-    -- Box ESP
-    drawings.Box.Size = Vector2.new(scale, scale * 1.5)
-    drawings.Box.Position = Vector2.new(headPos.X - (scale / 2), headPos.Y - (scale * 0.75))
-    drawings.Box.Visible = true
-    
-    -- Health Bar
-    local healthRatio = humanoid.Health / humanoid.MaxHealth
-    local healthColorIndex = math.clamp(3 - (healthRatio * 2), 1, 3)
-    local healthColor = Config.ESP.HealthGradient[math.floor(healthColorIndex)]:Lerp(
-        Config.ESP.HealthGradient[math.ceil(healthColorIndex)],
-        healthColorIndex % 1
-    )
-    
-    drawings.HealthBar.Size = Vector2.new(4, scale * 1.5 * healthRatio)
-    drawings.HealthBar.Position = Vector2.new(
-        headPos.X + (scale / 2) + 5,
-        (headPos.Y - (scale * 0.75)) + (scale * 1.5 * (1 - healthRatio))
-    )
-    drawings.HealthBar.Color = healthColor
-    drawings.HealthBar.Visible = true
-    
-    -- Distance
-    drawings.Distance.Text = math.floor(distance) .. "m"
-    drawings.Distance.Position = Vector2.new(headPos.X, headPos.Y + (scale * 0.75) + 10)
-    drawings.Distance.Visible = true
-    
-    -- Rainbow effect
-    if Config.ESP.RainbowEnabled then
-        local hue = (tick() * RainbowSpeed) % 1
-        local rainbowColor = Color3.fromHSV(hue, 1, 1)
-        drawings.Snapline.Color = rainbowColor
-        drawings.Box.Color = rainbowColor
+function UpdateStat(name, newValue)
+    local label = Main:FindFirstChild(name)
+    if label and label:IsA("TextLabel") then
+        label.Text = tostring(newValue)
     else
-        drawings.Snapline.Color = Config.ESP.BoxColor
-        drawings.Box.Color = Config.ESP.BoxColor
+        warn("Changeable UI element '" .. name .. "' not found.")
     end
-    
-    -- Snapline
-    if Config.ESP.SnaplineEnabled then
-        local lineYPosition
-        if Config.ESP.SnaplinePosition == "Bottom" then
-            lineYPosition = Camera.ViewportSize.Y
-        elseif Config.ESP.SnaplinePosition == "Top" then
-            lineYPosition = 0
-        else
-            lineYPosition = Camera.ViewportSize.Y / 2
-        end
+end
+
+function InitialMap()
+
+	local Workspace = cloneref(game:GetService("Workspace"))
+
+	local MapRoot = Workspace:FindFirstChild("Map", true)
+	local PropFolder = MapRoot and MapRoot:FindFirstChild("Prop", true)
+
+	if not PropFolder then
+		warn("Map not found")
+		return true
+	end
+
+
+	local Target = PropFolder:GetChildren()[499]
+
+	if not Target then
+		warn("Target object not found in Map")
+		return false
+	end
+
+	Target:Destroy()
+
+
+	local function CreatePlatform(size, position, name)
+		local part = Instance.new("Part")
+		part.Size = size
+		part.CFrame = CFrame.new(position)
+		part.Anchored = true
+		part.CanCollide = true
+		part.Material = Enum.Material.Plastic
+		part.Color = Color3.fromRGB(163, 162, 165)
+		part.Name = name
+		part.Parent = workspace
+
+		print(name .. " created at " .. tostring(position))
+	end
+
+
+	local charPosition = Player.Character.HumanoidRootPart.Position
+
+	CreatePlatform(Vector3.new(128, 1, 128), Vector3.new(charPosition.X, 1, charPosition.Z), "BaseChar")
+	CreatePlatform(Vector3.new(128, 1, 128), Vector3.new(-21797.74, 1037.11, -26793.34), "BaseCarPart")
+	CreatePlatform(Vector3.new(2048, 1, 2048), Vector3.new(-21801, 1015, -26836), "BaseTruckPart")
+	CreatePlatform(Vector3.new(2048, 1, 2048), Vector3.new(-50919, 1005, -86457), "BaseRGPart")
+
+
+	local mapFolder = workspace:FindFirstChild("Map")
+
+	if mapFolder then
+		mapFolder:Destroy()
+	else
+		print("Map folder not found")
+	end
+
+
+	return true
+
+end
+
+function TweenToJob()
+
+	game.ReplicatedStorage.NetworkContainer.RemoteEvents.Job:FireServer("Truck")
+
+
+	local Root = Player.Character:FindFirstChild("HumanoidRootPart")
+
+	if not Root then
+		return
+	end
+
+
+	local liftTween = TweenService:Create(
+		Root,
+		TweenInfo.new(0.5, Enum.EasingStyle.Quad),
+		{ CFrame = Root.CFrame + Vector3.new(0, 100, 0) }
+	)
+	liftTween:Play()
+
+
+	task.delay(0.5, function()
+
+		local moveTween = TweenService:Create(
+			Root,
+			TweenInfo.new(1, Enum.EasingStyle.Quad),
+			{ CFrame = CFrame.new(-21799.8, 1142.65, -26797.7) }
+		)
+		moveTween:Play()
+
+
+		task.delay(1, function()
+
+			local descendTween = TweenService:Create(
+				Root,
+				TweenInfo.new(1, Enum.EasingStyle.Exponential),
+				{ CFrame = CFrame.new(-21799.8, 1042.65, -26797.7) }
+			)
+			descendTween:Play()
+
+
+			task.delay(1, function()
+				Root.Anchored = true
+				task.wait(0.3)
+				Root.Anchored = false
+			end)
+		end)
+	end)
+
+end
+
+function TakingJob()
+
+	repeat
         
-        drawings.Snapline.From = Vector2.new(headPos.X, headPos.Y + (scale * 0.75))
-        drawings.Snapline.To = Vector2.new(Camera.ViewportSize.X / 2, lineYPosition)
-        drawings.Snapline.Visible = true
-    else
-        drawings.Snapline.Visible = false
-    end
+		local Root = Player.Character:FindFirstChild("HumanoidRootPart")
+		local Waypoint = workspace.Etc.Waypoint:FindFirstChild("Waypoint")
+		local Billboard = Waypoint and Waypoint:FindFirstChild("BillboardGui")
+		local Label = Billboard and Billboard:FindFirstChild("TextLabel")
+
+
+		if Root then
+			Root.Anchored = true
+		end
+
+
+		if Label and Label.Text ~= "Rojod Semarang" then
+
+			game.ReplicatedStorage.NetworkContainer.RemoteEvents.Job:FireServer("Truck")
+
+			local prompt = workspace.Etc.Job.Truck.Starter:FindFirstChildWhichIsA("ProximityPrompt", true)
+
+			if prompt then
+				prompt.MaxActivationDistance = 100000
+				fireproximityprompt(prompt)
+			end
+		end
+
+
+		if Root then
+			Root.Anchored = false
+		end
+
+
+		task.wait(0.8)
+
+	until Label and Label.Text == "Rojod Semarang"
+
+
+	Player.Character.HumanoidRootPart.Anchored = false
+
 end
 
-local function FindAimbotTarget()
-    local closestTarget = nil
-    local closestDistance = math.huge
-    local fov = Config.Aimbot.FOV or 30
-    
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-            local head = player.Character.Head
-            local direction = (head.Position - Camera.CFrame.Position).Unit
-            local lookVector = Camera.CFrame.LookVector
-            local angle = math.deg(math.acos(direction:Dot(lookVector)))
-            
-            if angle <= (fov / 2) then
-                local distance = (Camera.CFrame.Position - head.Position).Magnitude
-                
-                if distance <= Config.Aimbot.MaxDistance then
-                    local ray = Ray.new(Camera.CFrame.Position, direction * 500)
-                    local hitPart, _ = workspace:FindPartOnRay(ray, LocalPlayer.Character)
-                    
-                    if hitPart and hitPart:IsDescendantOf(player.Character) then
-                        if distance < closestDistance then
-                            closestDistance = distance
-                            closestTarget = player
-                        end
-                    end
-                end
-            end
-        end
-    end
-    
-    return closestTarget
+function SpawningTruck()
+
+	local Root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+
+	if not Root then
+		return
+	end
+
+
+	Root.CFrame = CFrame.new(-21782.941, 1042.03, -26786.959)
+
+
+	task.wait(2)
+
+	local Vim = game:GetService("VirtualInputManager")
+
+	Vim:SendKeyEvent(true, "F", false, game)
+	task.wait(0.3)
+	Vim:SendKeyEvent(false, "F", false, game)
+
+
+	task.wait(5)
+
+
+	local Car = workspace.Vehicles:FindFirstChild(CarName)
+	local Humanoid = Player.Character and Player.Character:FindFirstChild("Humanoid")
+	local Seat = Car and Car:FindFirstChild("DriveSeat")
+
+
+	if Humanoid and Seat then
+		pcall(function()
+			Seat:Sit(Humanoid)
+		end)
+
+		task.wait(0.5)
+
+		Vim:SendKeyEvent(true, "Space", false, game)
+		task.wait(0.1)
+		Vim:SendKeyEvent(false, "Space", false, game)
+	end
+
+
+	local Trailer = Car and Car:FindFirstChild("Trailer1")
+
+	if Trailer then
+		Trailer:Destroy()
+		print("Trailer destroyed to prevent interference.")
+	end
+
 end
 
--- FOV Circle
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Thickness = 2
-FOVCircle.NumSides = 100
-FOVCircle.Filled = false
-FOVCircle.Visible = Config.Aimbot.ShowFOV
-FOVCircle.Color = Color3.new(1, 1, 1)
+function MovingCharacterToDestination(Destination)
 
--- Auto Farm Functions
-local function formatNumber(n)
-    local formatted = tostring(n)
-    local k
-    while true do
-        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-        if k == 0 then break end
-    end
-    return formatted
+	local Root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+	local Car = workspace.Vehicles:FindFirstChild(CarName)
+
+	if not (Root and Car) then
+		return
+	end
+
+
+	if not Car.PrimaryPart then
+		for _, part in ipairs(Car:GetDescendants()) do
+			if part:IsA("BasePart") then
+				Car.PrimaryPart = part
+				break
+			end
+		end
+	end
+
+
+	local Follow = true
+
+	task.spawn(function()
+		while Follow do
+			if Car.PrimaryPart then
+				Car:PivotTo(Root.CFrame + Vector3.new(5, 0, 0))
+			end
+			task.wait(0.15)
+		end
+	end)
+
+
+	local AboveStart = Root.CFrame + Vector3.new(0, 100, 0)
+	local AboveDest = CFrame.new(Destination.Position + Vector3.new(0, 100, 0))
+
+
+	local liftTween = TweenService:Create(
+		Root,
+		TweenInfo.new(0.4, Enum.EasingStyle.Quad),
+		{ CFrame = AboveStart }
+	)
+	liftTween:Play()
+
+
+	task.delay(0.4, function()
+		local flyTween = TweenService:Create(
+			Root,
+			TweenInfo.new(1.6, Enum.EasingStyle.Sine),
+			{ CFrame = AboveDest }
+		)
+		flyTween:Play()
+
+
+		task.delay(1.6, function()
+			local descendTween = TweenService:Create(
+				Root,
+				TweenInfo.new(1.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out),
+				{ CFrame = Destination }
+			)
+			descendTween:Play()
+
+
+			task.delay(1.8, function()
+
+				Follow = false
+
+				Root.Anchored = true
+
+				if Car.PrimaryPart then
+					Car.PrimaryPart.Anchored = true
+				end
+
+				task.wait(0.8)
+
+				if Car.PrimaryPart then
+					Car.PrimaryPart.Anchored = false
+				end
+
+			end)
+		end)
+	end)
 end
 
-local function SetupAutoFarm()
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Workspace = game:GetService("Workspace")
-    local VirtualUser = game:GetService("VirtualUser")
-    
-    local localPlayer = Players.LocalPlayer
-    local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildWhichIsA("Humanoid")
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    
-    local bag = localPlayer:WaitForChild("States"):WaitForChild("Bag")
-    local bagSizeLevel = localPlayer:WaitForChild("Stats"):WaitForChild("BagSizeLevel"):WaitForChild("CurrentAmount")
-    local robEvent = ReplicatedStorage:WaitForChild("GeneralEvents"):WaitForChild("Rob")
-    local targetPosition = CFrame.new(1636.62537, 104.349976, -1736.184)
-    
-    if humanoid then
-        local clonedHumanoid = humanoid:Clone()
-        clonedHumanoid.Parent = character
-        localPlayer.Character = nil
-        clonedHumanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-        clonedHumanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-        clonedHumanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
-        humanoid:Destroy()
-        localPlayer.Character = character
-        local camera = Workspace.CurrentCamera
-        camera.CameraSubject = clonedHumanoid
-        camera.CFrame = camera.CFrame
-        clonedHumanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-        local animate = character:FindFirstChild("Animate")
-        if animate then
-            animate.Disabled = true
-            task.wait()
-            animate.Disabled = false
-        end
-        clonedHumanoid.Health = clonedHumanoid.MaxHealth
-        humanoid = clonedHumanoid
-        humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    end
-    
-    localPlayer.Idled:Connect(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end)
-    
-    local function moveToTarget()
-        if humanoidRootPart then
-            humanoidRootPart.CFrame = targetPosition
-        end
-    end
-    
-    local function checkCashRegister()
-        if not Config.AutoFarm.TargetCashRegisters then return false end
-        
-        for _, item in ipairs(Workspace:GetChildren()) do
-            if bag.Value >= bagSizeLevel.Value then
-                moveToTarget()
-                break
-            elseif item:IsA("Model") and item.Name == "CashRegister" then
-                local openPart = item:FindFirstChild("Open")
-                if openPart then
-                    humanoidRootPart.CFrame = openPart.CFrame
-                    robEvent:FireServer("Register", {
-                        Part = item:FindFirstChild("Union"),
-                        OpenPart = openPart,
-                        ActiveValue = item:FindFirstChild("Active"),
-                        Active = true
-                    })
-                    return true
-                end
-            end
-        end
-        return false
-    end
-    
-    local function checkSafe()
-        if not Config.AutoFarm.TargetSafes then return false end
-        
-        for _, item in ipairs(Workspace:GetChildren()) do
-            if bag.Value >= bagSizeLevel.Value then
-                moveToTarget()
-                break
-            elseif item:IsA("Model") and item.Name == "Safe" and item:FindFirstChild("Amount") and item.Amount.Value > 0 then
-                local safePart = item:FindFirstChild("Safe")
-                if safePart then
-                    humanoidRootPart.CFrame = safePart.CFrame
-                    local openFlag = item:FindFirstChild("Open")
-                    if openFlag and openFlag.Value then
-                        robEvent:FireServer("Safe", item)
-                    else
-                        local openSafe = item:FindFirstChild("OpenSafe")
-                        if openSafe then
-                            openSafe:FireServer("Completed")
-                        end
-                        robEvent:FireServer("Safe", item)
-                    end
-                    return true
-                end
-            end
-        end
-        return false
-    end
-    
-    -- Start Auto Farm loop
-    AutoFarmRunning = true
-    AutoFarmStats.StartTime = tick()
-    AutoFarmStats.Seconds = 0
-    AutoFarmStats.Minutes = 0
-    AutoFarmStats.Hours = 0
-    
-    local leaderstats = localPlayer:WaitForChild("leaderstats")
-    local cashStat = leaderstats:WaitForChild("$$")
-    AutoFarmStats.InitialCash = cashStat.Value
-    
-    -- Timer update
-    spawn(function()
-        while AutoFarmRunning and Config.AutoFarm.Enabled do
-            task.wait(1)
-            AutoFarmStats.Seconds = AutoFarmStats.Seconds + 1
-            if AutoFarmStats.Seconds >= 60 then
-                AutoFarmStats.Seconds = 0
-                AutoFarmStats.Minutes = AutoFarmStats.Minutes + 1
-            end
-            if AutoFarmStats.Minutes >= 60 then
-                AutoFarmStats.Minutes = 0
-                AutoFarmStats.Hours = AutoFarmStats.Hours + 1
-            end
-            
-            if Config.AutoFarm.ShowStats then
-                TimerLabel.Text = string.format("Time: %02d:%02d:%02d", AutoFarmStats.Hours, AutoFarmStats.Minutes, AutoFarmStats.Seconds)
-            end
-        end
-    end)
-    
-    -- Earnings update
-    spawn(function()
-        while AutoFarmRunning and Config.AutoFarm.Enabled do
-            task.wait(0.5)
-            AutoFarmStats.Earnings = cashStat.Value - AutoFarmStats.InitialCash
-            if Config.AutoFarm.ShowStats then
-                CashLabel.Text = "Earnings: $" .. formatNumber(AutoFarmStats.Earnings)
-            end
-        end
-    end)
-    
-    -- Auto Farm loop
-    spawn(function()
-        while AutoFarmRunning and Config.AutoFarm.Enabled do
-            RunService.RenderStepped:Wait()
-            if not checkCashRegister() then
-                checkSafe()
-            end
-        end
-    end)
+function CountdownTeleport(seconds)
+
+	local countdownGui = game:GetService("CoreGui"):FindFirstChild("CountdownUI")
+
+	if not countdownGui then
+		countdownGui = Instance.new("ScreenGui")
+		countdownGui.Name = "CountdownUI"
+		countdownGui.IgnoreGuiInset = true
+		countdownGui.ResetOnSpawn = false
+		countdownGui.Parent = game:GetService("CoreGui")
+	end
+
+
+	if not CountdownLabel then
+		CountdownLabel = Instance.new("TextLabel")
+		CountdownLabel.Name = "CountdownLabel"
+		CountdownLabel.Parent = countdownGui
+		CountdownLabel.Size = UDim2.new(0, 200, 0, 100)
+		CountdownLabel.Position = UDim2.new(0.5, 0, 0.5, 100)
+		CountdownLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+		CountdownLabel.BackgroundTransparency = 1
+		CountdownLabel.Font = Enum.Font.GothamBlack
+		CountdownLabel.TextSize = 72
+		CountdownLabel.TextColor3 = Color3.new(1, 1, 1)
+		CountdownLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+		CountdownLabel.TextStrokeTransparency = 0.4
+		CountdownLabel.TextScaled = true
+		CountdownLabel.Text = ""
+	end
+
+
+	CountdownLabel.Visible = true
+
+	for i = seconds, 1, -1 do
+		CountdownLabel.Text = tostring(i)
+		task.wait(1)
+	end
+
+
+	CountdownLabel.Visible = false
 end
 
-local function StopAutoFarm()
-    AutoFarmRunning = false
+function SitInVehicle()
+
+	local Car = workspace.Vehicles:FindFirstChild(CarName)
+	local Hum = Player.Character and Player.Character:FindFirstChild("Humanoid")
+
+	local Seat = Car and Car:FindFirstChild("DriveSeat")
+	if Hum and Seat then pcall(function() Seat:Sit(Hum) end) end
+
 end
 
-local Window = WindUI:CreateWindow({
-    Title = "loc:WINDUI_EXAMPLE",
-    Icon = "palette",
-    Author = "loc:WELCOME",
-    Folder = "WindUI_Example",
-    Size = UDim2.fromOffset(580, 490),
-    Theme = "Dark",
-    User = {
-        Enabled = true,
-        Anonymous = false,
-        Username = playerName,
-        UserId = LocalPlayer.UserId,
-        Callback = function()
-            WindUI:Notify({
-                Title = "User Profile",
-                Content = "Hello, " .. displayName .. "! (ID: " .. LocalPlayer.UserId .. ")",
-                Duration = 3
-            })
-        end
-    },
-    SideBarWidth = 200,
-})
+function UpdateEarningStats()
 
-Window:CreateTopbarButton("theme-switcher", "moon", function()
-    WindUI:SetTheme(WindUI:GetCurrentTheme() == "Dark" and "Light" or "Dark")
-    WindUI:Notify({
-        Title = "Theme Changed",
-        Content = "Current theme: "..WindUI:GetCurrentTheme(),
-        Duration = 2
-    })
-end, 990)
+	local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local Tabs = {
-    Main = Window:Section({ Title = "loc:FEATURES", Opened = true }),
-    Settings = Window:Section({ Title = "loc:SETTINGS", Opened = true }),
-    Utilities = Window:Section({ Title = "loc:UTILITIES", Opened = true })
-}
+	local cashFrame = playerGui:FindFirstChild("Main") and playerGui.Main:FindFirstChild("Container") 
+		and playerGui.Main.Container:FindFirstChild("Hub") 
+		and playerGui.Main.Container.Hub:FindFirstChild("CashFrame") 
+		or nil
 
-local TabHandles = {
-    ESP = Tabs.Main:Tab({ Title = "ESP", Icon = "eye", Desc = "ESP Settings" }),
-    Aimbot = Tabs.Main:Tab({ Title = "Aimbot", Icon = "crosshair" }),
-    AutoFarm = Tabs.Main:Tab({ Title = "loc:AUTO_FARM", Icon = "coins" }),
-    Appearance = Tabs.Settings:Tab({ Title = "loc:APPEARANCE", Icon = "brush" }),
-    Config = Tabs.Utilities:Tab({ Title = "loc:CONFIGURATION", Icon = "settings" })
-}
+	if not cashFrame then
+		warn("CashFrame not found.")
+		return
+	end
 
--- ESP Tab
-TabHandles.ESP:Paragraph({
-    Title = "ESP Settings",
-    Desc = "Configure your ESP features",
-    Image = "eye",
-    ImageSize = 20,
-    Color = Color3.fromHex("#30ff6a"),
-})
+	local uangLabel = cashFrame.Frame and cashFrame.Frame:FindFirstChild("TextLabel")
+	local earningText = cashFrame:FindFirstChild("TextLabel")
 
-TabHandles.ESP:Divider()
+	local function cleanToNumber(text)
+		text = tostring(text or "")
+		text = text:gsub("[^%d]", "")
+		return tonumber(text) or 0
+	end
 
-local espToggle = TabHandles.ESP:Toggle({
-    Title = "Enable ESP",
-    Desc = "Toggle ESP on/off",
-    Value = Config.ESP.Enabled,
-    Callback = function(state) 
-        Config.ESP.Enabled = state
-        WindUI:Notify({
-            Title = "ESP",
-            Content = state and "ESP Enabled" or "ESP Disabled",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
+	local function formatRupiah(amount)
+		local formatted = tostring(amount)
+		local k
+		while true do
+			formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1.%2")
+			if k == 0 then break end
+		end
+		return "Rp " .. formatted
+	end
 
-local snaplineToggle = TabHandles.ESP:Toggle({
-    Title = "Enable Snapline",
-    Desc = "Toggle snapline on/off",
-    Value = Config.ESP.SnaplineEnabled,
-    Callback = function(state) 
-        Config.ESP.SnaplineEnabled = state
-        WindUI:Notify({
-            Title = "Snapline",
-            Content = state and "Snapline Enabled" or "Snapline Disabled",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
+	if uangLabel and earningText then
+		local uangText = uangLabel.Text
+		local earningValue = cleanToNumber(earningText.Text)
+		local earned = earningValue
 
-local rainbowToggle = TabHandles.ESP:Toggle({
-    Title = "Rainbow Effect",
-    Desc = "Toggle rainbow colors on/off",
-    Value = Config.ESP.RainbowEnabled,
-    Callback = function(state) 
-        Config.ESP.RainbowEnabled = state
-        WindUI:Notify({
-            Title = "Rainbow",
-            Content = state and "Rainbow Enabled" or "Rainbow Disabled",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
+		TotalEarning = TotalEarning or 0
+		TotalEarning += earned
 
-local snaplinePosition = TabHandles.ESP:Dropdown({
-    Title = "Snapline Position",
-    Values = { "Center", "Bottom", "Top" },
-    Value = Config.ESP.SnaplinePosition,
-    Callback = function(option)
-        Config.ESP.SnaplinePosition = option
-        WindUI:Notify({
-            Title = "Snapline Position",
-            Content = "Position: "..option,
-            Duration = 2
-        })
-    end
-})
+		_G.LastEarningFormatted = formatRupiah(earned)
+		_G.TotalEarningFormatted = formatRupiah(TotalEarning)
 
-TabHandles.ESP:Colorpicker({
-    Title = "ESP Color",
-    Default = Config.ESP.BoxColor,
-    Callback = function(color, transparency)
-        Config.ESP.BoxColor = color
-        WindUI:Notify({
-            Title = "ESP Color",
-            Content = "Color changed",
-            Duration = 2
-        })
-    end
-})
+		UpdateStat("MoneyChangable", uangText)
+		UpdateStat("LastChangable", _G.LastEarningFormatted)
+		UpdateStat("TotalEarnChangable", _G.TotalEarningFormatted)
 
--- Aimbot Tab
-TabHandles.Aimbot:Paragraph({
-    Title = "Aimbot Settings",
-    Desc = "Configure your aimbot features",
-    Image = "crosshair",
-    ImageSize = 20,
-    Color = Color3.fromHex("#ff3030"),
-})
+		LastRecorded = currentMoney or 0
+	end
 
-TabHandles.Aimbot:Divider()
+	if StartTime then
+		local elapsed = math.floor(os.clock() - StartTime)
+		UpdateStat("TimeChangable", elapsed .. " sec")
+	end
 
-local aimbotToggle = TabHandles.Aimbot:Toggle({
-    Title = "Enable Aimbot",
-    Desc = "Toggle aimbot on/off",
-    Value = Config.Aimbot.Enabled,
-    Callback = function(state) 
-        Config.Aimbot.Enabled = state
-        WindUI:Notify({
-            Title = "Aimbot",
-            Content = state and "Aimbot Enabled" or "Aimbot Disabled",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
-
-local fovToggle = TabHandles.Aimbot:Toggle({
-    Title = "Show FOV Circle",
-    Desc = "Toggle FOV circle visibility",
-    Value = Config.Aimbot.ShowFOV,
-    Callback = function(state) 
-        Config.Aimbot.ShowFOV = state
-        FOVCircle.Visible = state
-        WindUI:Notify({
-            Title = "FOV Circle",
-            Content = state and "FOV Circle Enabled" or "FOV Circle Disabled",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
-
-local fovSlider = TabHandles.Aimbot:Slider({
-    Title = "FOV Size",
-    Desc = "Adjust aimbot field of view",
-    Value = { Min = 5, Max = 100, Default = Config.Aimbot.FOV },
-    Callback = function(value)
-        Config.Aimbot.FOV = value
-    end
-})
-
-local distanceSlider = TabHandles.Aimbot:Slider({
-    Title = "Max Distance",
-    Desc = "Adjust maximum target distance",
-    Value = { Min = 10, Max = 1000, Default = Config.Aimbot.MaxDistance },
-    Callback = function(value)
-        Config.Aimbot.MaxDistance = value
-    end
-})
-
-local targetPart = TabHandles.Aimbot:Dropdown({
-    Title = "Target Part",
-    Values = { "Head", "Torso", "HumanoidRootPart" },
-    Value = Config.Aimbot.TargetPart,
-    Callback = function(option)
-        Config.Aimbot.TargetPart = option
-        WindUI:Notify({
-            Title = "Target Part",
-            Content = "Targeting: "..option,
-            Duration = 2
-        })
-    end
-})
-
--- Auto Farm Tab
-TabHandles.AutoFarm:Paragraph({
-    Title = "Auto Farm Settings",
-    Desc = "Automatically farm cash registers and safes",
-    Image = "coins",
-    ImageSize = 20,
-    Color = Color3.fromHex("#FFD700"),
-})
-
-TabHandles.AutoFarm:Divider()
-
-local autoFarmToggle = TabHandles.AutoFarm:Toggle({
-    Title = "loc:ENABLE_AUTO_FARM",
-    Desc = "loc:AUTO_FARM_DESC",
-    Value = Config.AutoFarm.Enabled,
-    Callback = function(state) 
-        Config.AutoFarm.Enabled = state
-        
-        if state then
-            SetupAutoFarm()
-            WindUI:Notify({
-                Title = "Auto Farm",
-                Content = "Auto Farm Enabled",
-                Icon = "check",
-                Duration = 2
-            })
-        else
-            StopAutoFarm()
-            WindUI:Notify({
-                Title = "Auto Farm",
-                Content = "Auto Farm Disabled",
-                Icon = "x",
-                Duration = 2
-            })
-        end
-    end
-})
-
-local statsToggle = TabHandles.AutoFarm:Toggle({
-    Title = "Show Statistics",
-    Desc = "Display auto farm stats on screen",
-    Value = Config.AutoFarm.ShowStats,
-    Callback = function(state) 
-        Config.AutoFarm.ShowStats = state
-        AutoFarmUI.Enabled = state
-        WindUI:Notify({
-            Title = "Statistics",
-            Content = state and "Stats Enabled" or "Stats Disabled",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
-
-local cashRegisterToggle = TabHandles.AutoFarm:Toggle({
-    Title = "Target Cash Registers",
-    Desc = "Farm cash registers",
-    Value = Config.AutoFarm.TargetCashRegisters,
-    Callback = function(state) 
-        Config.AutoFarm.TargetCashRegisters = state
-        WindUI:Notify({
-            Title = "Cash Registers",
-            Content = state and "Targeting Cash Registers" or "Not Targeting Cash Registers",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
-
-local safeToggle = TabHandles.AutoFarm:Toggle({
-    Title = "Target Safes",
-    Desc = "Farm safes",
-    Value = Config.AutoFarm.TargetSafes,
-    Callback = function(state) 
-        Config.AutoFarm.TargetSafes = state
-        WindUI:Notify({
-            Title = "Safes",
-            Content = state and "Targeting Safes" or "Not Targeting Safes",
-            Icon = state and "check" or "x",
-            Duration = 2
-        })
-    end
-})
-
--- Appearance Tab
-TabHandles.Appearance:Paragraph({
-    Title = "Customize Interface",
-    Desc = "Personalize your experience",
-    Image = "palette",
-    ImageSize = 20,
-    Color = "White"
-})
-
-local themes = {}
-for themeName, _ in pairs(WindUI:GetThemes()) do
-    table.insert(themes, themeName)
-end
-table.sort(themes)
-
-local themeDropdown = TabHandles.Appearance:Dropdown({
-    Title = "loc:THEME_SELECT",
-    Values = themes,
-    Value = "Dark",
-    Callback = function(theme)
-        WindUI:SetTheme(theme)
-        WindUI:Notify({
-            Title = "Theme Applied",
-            Content = theme,
-            Icon = "palette",
-            Duration = 2
-        })
-    end
-})
-
-local transparencySlider = TabHandles.Appearance:Slider({
-    Title = "loc:TRANSPARENCY",
-    Value = { 
-        Min = 0,
-        Max = 1,
-        Default = 0.2,
-    },
-    Step = 0.1,
-    Callback = function(value)
-        Window:ToggleTransparency(tonumber(value) > 0)
-        WindUI.TransparencyValue = tonumber(value)
-    end
-})
-
--- Configuration Tab
-TabHandles.Config:Paragraph({
-    Title = "Configuration Manager",
-    Desc = "Save and load your settings",
-    Image = "save",
-    ImageSize = 20,
-    Color = "White"
-})
-
-local configName = "default"
-local configFile = nil
-
-TabHandles.Config:Input({
-    Title = "Config Name",
-    Value = configName,
-    Callback = function(value)
-        configName = value or "default"
-    end
-})
-
-TabHandles.Config:Button({
-    Title = "Save Configuration",
-    Icon = "save",
-    Variant = "Primary",
-    Callback = function()
-        WindUI:Notify({ 
-            Title = "Configuration", 
-            Content = "Settings saved for " .. playerName .. "!",
-            Icon = "check",
-            Duration = 3
-        })
-    end
-})
-
-TabHandles.Config:Button({
-    Title = "Load Configuration",
-    Icon = "folder",
-    Callback = function()
-        WindUI:Notify({ 
-            Title = "Configuration", 
-            Content = "Settings loaded for " .. playerName .. "!",
-            Icon = "refresh-cw",
-            Duration = 3
-        })
-    end
-})
-
--- Main Loop
-RunService.RenderStepped:Connect(function()
-    -- Update FOV Circle
-    FOVCircle.Visible = Config.Aimbot.ShowFOV
-    FOVCircle.Radius = (Config.Aimbot.FOV / 2) * (Camera.ViewportSize.Y / 90)
-    FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    
-    -- Rainbow effect for FOV Circle
-    if Config.ESP.RainbowEnabled and Config.Aimbot.ShowFOV then
-        local hue = (tick() * RainbowSpeed) % 1
-        FOVCircle.Color = Color3.fromHSV(hue, 1, 1)
-    elseif Config.Aimbot.ShowFOV then
-        FOVCircle.Color = Color3.new(1, 1, 1)
-    end
-    
-    -- Update ESP for all players
-    for player, drawings in pairs(ESPDrawings) do
-        UpdateESP(player, drawings)
-    end
-    
-    -- Aimbot functionality
-    if Config.Aimbot.Enabled then
-        local target = FindAimbotTarget()
-        if target and target.Character and target.Character:FindFirstChild(Config.Aimbot.TargetPart) then
-            Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character[Config.Aimbot.TargetPart].Position)
-        end
-    end
-end)
-
--- Initialize ESP for all players
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        CreateESP(player)
-    end
 end
 
--- Player added/removed events
-Players.PlayerAdded:Connect(function(player)
-    CreateESP(player)
-    
-    player.CharacterAdded:Connect(function()
-        if ESPDrawings[player] then
-            for _, drawing in pairs(ESPDrawings[player]) do
-                pcall(function() drawing:Remove() end)
-            end
-            ESPDrawings[player] = nil
-        end
-        CreateESP(player)
-    end)
-    
-    player.CharacterRemoving:Connect(function()
-        if ESPDrawings[player] then
-            for _, drawing in pairs(ESPDrawings[player]) do
-                pcall(function() drawing:Remove() end)
-            end
-            ESPDrawings[player] = nil
-        end
-    end)
-end)
 
-Players.PlayerRemoving:Connect(function(player)
-    if ESPDrawings[player] then
-        for _, drawing in pairs(ESPDrawings[player]) do
-            pcall(function() drawing:Remove() end)
-        end
-        ESPDrawings[player] = nil
-    end
-end)
+function CarTween(TargetCFrame)
 
--- UI Toggle
-local UIVisible = true
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.RightShift then
-        UIVisible = not UIVisible
-        Window.Enabled = UIVisible
-    end
-end)
+	local Root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
 
--- Welcome Notification
-local function ShowWelcomeNotification()
-    WindUI:Notify({
-        Title = "Script Loaded",
-        Content = "Welcome, " .. displayName .. "! ESP, Aimbot, and Auto Farm features are ready!",
-        Icon = "check",
-        Duration = 5
-    })
+	if not Root then
+		return
+	end
+
+	Root.Anchored = false
+
+	task.wait(0.2)
+
+
+	local Car = workspace.Vehicles:FindFirstChild(CarName)
+
+	if not Car then
+		warn("Vehicle not found.")
+		return
+	end
+
+	if not Car.PrimaryPart then
+		local Seat = Car:FindFirstChild("DriveSeat")
+		if Seat then
+			Car.PrimaryPart = Seat
+		else
+			return
+		end
+	end
+
+
+	local TempCFrameValue = Instance.new("CFrameValue", workspace)
+	TempCFrameValue.Value = Car:GetPivot()
+
+	local tween = TweenService:Create(
+		TempCFrameValue,
+		TweenInfo.new(3, Enum.EasingStyle.Linear),
+		{ Value = TargetCFrame }
+	)
+
+	TempCFrameValue:GetPropertyChangedSignal("Value"):Connect(function()
+		Car:PivotTo(TempCFrameValue.Value)
+	end)
+
+	tween:Play()
+	tween.Completed:Wait()
+
+	TempCFrameValue:Destroy()
+
+
+	game.ReplicatedStorage.NetworkContainer.RemoteEvents.Job:FireServer("Truck")
+
+	task.wait(0.2)
+
+	Root = Player.Character:FindFirstChild("HumanoidRootPart")
+
+	if not Root then
+		return
+	end
+
+	Root.Anchored = true
+	task.wait(0.2)
+	Root.Anchored = false
+
+	task.wait(0.02)
+
+
+	UpdateEarningStats()
+
 end
 
-ShowWelcomeNotification()
-warn("✅ Script successfully activated for " .. playerName .. "!")
+function StartFarming()
+	
+	StartTime = os.clock()
+	ToggleGlassOverlay()
+		
+	while true do
+		InitialMap()
+		task.wait(0.5)
+		TweenToJob()
+		task.wait(0.5)
+		TakingJob()
+		task.wait(0.5)
+		SpawningTruck()
+		task.wait(0.5)
+		MovingCharacterToDestination(CFrame.new(-50937.152, 1012.215, -86353.031))
+		CountdownTeleport(55)
+		SitInVehicle()
+		CarTween(CFrame.new(-50899.6015625, 1013.977783203125, -86534.9765625))
+		task.wait(0.5)
+	end
+
+end
+
+StartFarming()
