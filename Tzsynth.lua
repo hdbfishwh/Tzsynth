@@ -1,4 +1,4 @@
-local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/hdbfishwh/SynthorixV2/refs/heads/main/Theme.lua"))()
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/hdbfishwh/Tzsynth/refs/heads/main/Theme.lua"))()
 
 -- Services
 local Players = game:GetService("Players")
